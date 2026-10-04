@@ -3,5 +3,5 @@
 window.TOMO_CONFIG = {
   url: 'https://rvtydmcjpooznbsxskax.supabase.co',
   anonKey: 'sb_publishable_1QnLEPc3vgHTeneAg7aCMw_vfU9IINj',
-  turnstileSiteKey: ''   // Cloudflare Turnstile を使うときだけ（荒らし対策）
+  turnstileSiteKey: '0x4AAAAAAFNke0400sOqBtow'   // Cloudflare Turnstile（荒らし対策）の公開用の鍵
 };
