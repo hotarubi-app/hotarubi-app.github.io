@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ご利用について｜ほたるび</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&family=Noto+Sans+JP:wght@400;700&display=swap">
+<style>
+:root{--sky:#0d1630;--panel:#18264f;--ink:#eef1f8;--mute:#9aa6c4;--line:rgba(154,166,196,.22);--lamp:#ffbe5c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--sky);color:var(--ink);font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;font-size:15px;line-height:1.8}
+main{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 56px}
+h1{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;font-size:22px;margin:0 0 4px}
+h2{font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;font-size:17px;margin:32px 0 8px;color:var(--lamp)}
+p,li{color:var(--ink)}
+.mute{color:var(--mute);font-size:13px}
+ul{padding-left:1.3em;margin:0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:400;white-space:nowrap}
+.scroll{overflow-x:auto}
+a{color:var(--lamp)}
+</style>
+</head>
+<body>
+<main>
+  <h1>ご利用について</h1>
+  <p class="mute">最終更新：2026年10月4日</p>
+  <p><a href="./">← ほたるびに戻る</a></p>
+
+  <h2>このサービスについて</h2>
+  <p>ほたるびは、「おはよう」「いってきます」「おつかれさま」「ただいま」「おやすみ」の5つの挨拶を押すと、同じころ日本中で同じ挨拶をした人の灯りが地図にともるウェブサービスです。個人が作って運営しています。名前やメールアドレスの登録はいりません。</p>
+
+  <h2>記録する情報</h2>
+  <ul>
+    <li>押した挨拶の種類と時刻</li>
+    <li>選んだ都道府県と市区町村（自己申告）</li>
+    <li>選んだ火花の色と、好きな花火の種類</li>
+    <li>匿名の利用者番号：同じ挨拶を1日に何度も押せないようにするためだけに使います。翌日には挨拶の記録から切り離し、30日使われなかった番号は消します</li>
+    <li>回線（IPアドレス）を、そのままでは読めない形に変換した値：短時間の大量送信を止めるためだけに使い、翌日には消します。IPアドレスそのものは保存しません。ただし変換に使う鍵は同じサーバーにあるため、運営者が手間をかければ元のアドレスを推測できる可能性はあります</li>
+  </ul>
+  <p>挨拶の記録（日付、分単位の時刻、都道府県と市区町村、挨拶の種類、色、花火の種類）は、集計のために残し続けます。翌日になると、時刻は分単位に丸めます。匿名でつなぐ仕組み（Supabase の認証機能）が、接続元のIPアドレスを記録として残すことがあります。</p>
+  <p>お使いの端末の中には、選んだ場所・色・花火の種類・音の設定・挨拶した日の記録と、匿名でつなぐための情報を保存します。これらは端末の中だけにあり、ブラウザのデータを消すとなくなります。</p>
+
+  <h2>情報の使い道</h2>
+  <ul>
+    <li>画面に、人数・地図の灯り・流れる挨拶・夜の花火を表示するため</li>
+    <li>荒らしや大量送信を防ぐため</li>
+    <li>個人を特定できない形の集計（たとえば「おつかれさまが一番重なった時刻」）を、サービスの中や紹介の投稿で公開するため</li>
+  </ul>
+  <p>みんなに見せる集計は、個人の行動をたどれない形にしてからサーバーが作ります。</p>
+  <ul>
+    <li>その日に挨拶した人が3人未満の市区町村は、都道府県の灯りにまとめます。「市区町村がそろった」かどうかも、3人以上いる市区町村だけで数えます</li>
+    <li>流れる挨拶は、挨拶の種類・都道府県・時刻（分単位）だけです。ほかの人が選んだ色は出しません</li>
+    <li>色や花火の種類の割合は、毎晩21時に、その日21時までの分をまとめて1回だけ出します</li>
+  </ul>
+  <p>ただし、使っている人が少ない都道府県では、流れる挨拶の時刻から、誰かが押した時刻が推測されることがあります。</p>
+  <p>個人を特定できる形で、記録を公開したり第三者に渡したりはしません。</p>
+
+  <h2>外部への送信について</h2>
+  <p class="mute">電気通信事業法の外部送信規律にもとづいて公表します。</p>
+  <div class="scroll">
+  <table>
+    <tr><th>送信先</th><th>送る情報</th><th>目的</th></tr>
+    <tr><td>Supabase（Supabase Inc.）</td><td>上の「記録する情報」、IPアドレス、ブラウザの情報</td><td>挨拶の記録と集計、匿名でつなぐため。データは東京のサーバーに保存します</td></tr>
+    <tr><td>GitHub Pages（GitHub, Inc.）</td><td>IPアドレス、ブラウザの情報、見たページ</td><td>このページを配信するため</td></tr>
+    <tr><td>jsDelivr</td><td>IPアドレス、ブラウザの情報</td><td>プログラムの部品を配信するため</td></tr>
+    <tr><td>Google Fonts（Google LLC）</td><td>IPアドレス、ブラウザの情報</td><td>文字の書体を表示するため</td></tr>
+    <tr><td>Cloudflare Turnstile（Cloudflare, Inc.）※使う場合のみ</td><td>IPアドレス、ブラウザの情報</td><td>機械による大量送信を見分けるため</td></tr>
+  </table>
+  </div>
+  <p>広告や、アクセス解析のための送信はしていません。</p>
+
+  <h2>利用規約</h2>
+  <ul>
+    <li>プログラムなどを使った自動送信や大量送信、サービスの運営を妨げる行為はしないでください。見つけた場合は、記録を集計から外すことがあります。</li>
+    <li>サービスの内容は、予告なく変えたり、止めたりすることがあります。</li>
+    <li>表示される人数や地図、花火は、利用者の自己申告をもとにしたものです。正確さは保証できません。</li>
+    <li>このサービスを使ったこと、または使えなかったことで生じた損害について、運営者は故意または重大な過失がある場合を除いて責任を負いません。</li>
+    <li>この内容は変えることがあります。大事な変更は、このページでお知らせします。</li>
+  </ul>
+
+  <h2>お問い合わせ</h2>
+  <p>X（旧Twitter）の <a href="https://x.com/IT19697819" rel="noopener">@IT19697819</a> へDMでお送りください。</p>
+</main>
+</body>
+</html>

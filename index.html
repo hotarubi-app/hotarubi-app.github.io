@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://challenges.cloudflare.com; media-src 'self'">
+<title>ほたるび</title>
+<meta name="description" content="おはよう、いってきます、おつかれさま、ただいま、おやすみ。押すと、同じころ日本中で同じ挨拶をした人の灯りが地図にともります。毎晩21時には、その日の色で花火が上がります。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ほたるび">
+<meta property="og:description" content="同じころ、日本中で同じ挨拶をしている人がいる。押すと灯りがともり、毎晩21時にその日の色で花火が上がります。">
+<meta property="og:image" content="https://hotarubi-app.github.io/ogp.png">
+<meta property="og:url" content="https://hotarubi-app.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<style>*{margin:0}html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* Layout: 1本の細いカラム。夜空の日本地図が主役。言葉は5つの挨拶だけで、押すと灯りが増える */
+:root{
+  --sky:#0d1630;
+  --panel:#18264f;
+  --ink:#eef1f8;
+  --mute:#9aa6c4;
+  --line:rgba(154,166,196,.22);
+  --lamp:#ffbe5c;
+  --lamp-soft:rgba(255,190,92,.16);
+  --lamp-ink:#2b1b03;
+  --dust:#4d5e8f;
+  --night:#070b1c;
+  --f-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif;
+  --f-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:radial-gradient(120% 420px at 50% -80px,rgba(255,159,107,.18),transparent 70%) no-repeat,var(--sky);
+  color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+}
+.wrap{max-width:520px;margin:0 auto;padding-inline:16px;padding-block:14px 40px;display:grid;gap:14px}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.chip{font-size:12px;letter-spacing:.06em;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.modes{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.modes button{font:inherit;font-size:12px;color:var(--mute);background:none;border:0;border-radius:999px;padding:3px 12px;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--panel);color:var(--ink)}
+.modes button:disabled{opacity:.45;cursor:not-allowed}
+.headline{font-family:var(--f-display);margin:10px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:.3em;line-height:1.2;font-size:18px;font-weight:700}
+.headline .num{font-size:clamp(44px,12vw,60px);font-weight:900;color:var(--lamp);font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-shadow:0 0 24px rgba(255,190,92,.35)}
+.demo-banner{margin:6px 0 0;font-size:12px;color:var(--lamp);background:var(--lamp-soft);border-radius:10px;padding:6px 12px}
+
+.map-wrap{position:relative}
+#map{display:block;width:100%;height:auto;max-height:46vh}
+#map .dust{fill:var(--dust)}
+#map .halo{fill:url(#glow);mix-blend-mode:screen}
+#map .core{fill:#fff4dc}
+#map .inset{fill:none;stroke:var(--line)}
+#map .inset-label{fill:var(--mute);font-size:13px;font-family:var(--f-body)}
+#map .ripple{fill:none;stroke:var(--lamp);stroke-width:2.5;transform-box:fill-box;transform-origin:center;animation:ripple 1.6s ease-out forwards}
+@keyframes ripple{from{transform:scale(1);opacity:.95}to{transform:scale(5);opacity:0}}
+.map-empty{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:10px;text-align:center;color:var(--mute);font-size:14px;padding:16px}
+.link-btn{font:inherit;font-size:13px;color:var(--lamp);background:var(--sky);border:1px solid var(--lamp);border-radius:999px;padding:5px 14px;cursor:pointer}
+
+/* 流れてくる挨拶 */
+.stream{height:112px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 40px);mask-image:linear-gradient(to bottom,transparent 0,#000 40px)}
+.msg{display:flex;align-items:baseline;gap:8px;align-self:flex-start;flex:none}
+.msg .from{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+.msg .bubble{font-family:var(--f-display);font-weight:700;color:var(--lamp);background:var(--panel);border-radius:16px 16px 16px 5px;padding:4px 12px}
+.msg.in{animation:inLeft .45s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes inLeft{from{opacity:0;transform:translateX(-40px) scale(.9)}to{opacity:1;transform:none}}
+.sub{margin:4px 0 0;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+/* 全国チャレンジ */
+.challenge{display:grid;gap:6px}
+.challenge .label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;color:var(--mute)}
+.challenge .label b{font-family:var(--f-display);font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
+.bar{height:6px;border-radius:999px;background:var(--panel);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--lamp);border-radius:999px;transition:width .6s}
+
+/* 挨拶を選んで押す */
+.greets{display:flex;gap:6px;flex-wrap:wrap}
+.greets button{font:inherit;font-size:13px;color:var(--mute);background:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.greets button[aria-pressed="true"]{color:var(--ink);border-color:var(--lamp);background:var(--lamp-soft)}
+.greets button.done::after{content:" ✓";color:var(--lamp)}
+.big{font-family:var(--f-display);font-size:22px;font-weight:700;width:100%;padding:15px;border-radius:999px;border:1px solid var(--lamp);background:var(--lamp);color:var(--lamp-ink);cursor:pointer;transition:transform .15s}
+.big:active{transform:scale(.98)}
+.big:disabled{background:transparent;color:var(--lamp);cursor:default}
+.result{margin:0;font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--lamp);text-align:center;min-height:1.6em}
+.where{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.where select{font:inherit;font-size:12px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:2px 6px}
+.note{margin:0;font-size:12px;color:var(--mute)}
+
+/* 自分の記録 */
+.record{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.record h2{font-family:var(--f-display);font-size:15px;font-weight:700;margin:0;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.record h2 span{font-size:13px;color:var(--mute);font-weight:500;font-variant-numeric:tabular-nums}
+.cal{display:grid;grid-template-columns:repeat(14,1fr);gap:5px}
+.cal i{aspect-ratio:1;border-radius:50%;background:var(--panel)}
+.cal i.l1{background:rgba(255,190,92,.3)}
+.cal i.l2{background:rgba(255,190,92,.5)}
+.cal i.l3{background:rgba(255,190,92,.7)}
+.cal i.l4{background:rgba(255,190,92,.85)}
+.cal i.l5{background:var(--lamp);box-shadow:0 0 8px rgba(255,190,92,.6)}
+.cal i.today{outline:1px solid var(--mute);outline-offset:2px}
+/* 色と花火の種類 */
+.pick{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--mute)}
+.pick .lbl{min-width:5.5em}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:var(--c);box-shadow:inset 0 0 0 2px var(--sky)}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.types button{font:inherit;font-size:12px;color:var(--mute);background:none;border:1px solid var(--line);border-radius:999px;padding:3px 11px;cursor:pointer}
+.types button[aria-pressed="true"]{color:var(--ink);border-color:var(--lamp);background:var(--lamp-soft)}
+
+/* 今日のできごと */
+.today{display:grid;gap:6px}
+.today ul{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}
+.today .done li{color:var(--lamp)}
+.today .done li::before{content:"✦ ";}
+.today .soon li{color:var(--mute)}
+.today .soon li::before{content:"もうすぐ　";font-size:11px;letter-spacing:.06em;color:var(--ink)}
+/* 今夜の花火 */
+.tonight{display:grid;gap:8px;border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:linear-gradient(180deg,var(--panel),transparent)}
+.tonight h2{font-family:var(--f-display);font-size:17px;font-weight:700;margin:0}
+.fw-btn{font-family:var(--f-display);font-size:17px;font-weight:700;border-radius:999px;padding:11px;border:1px solid var(--lamp);background:var(--lamp-soft);color:var(--lamp);cursor:pointer}
+.show{position:fixed;inset:0;z-index:10;background:var(--night)}
+.show canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* 光のにじみ: 火花の写しをぼかして下に重ねる */
+#bloomCanvas{filter:blur(6px) brightness(1.5) saturate(1.5);mix-blend-mode:screen;opacity:.85}
+.show-top{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:16px;right:16px;display:grid;gap:6px;pointer-events:none;text-align:center;justify-items:center}
+.show-top h2{font-family:var(--f-display);font-size:22px;font-weight:900;margin:0;text-shadow:0 2px 12px var(--night)}
+.show-top p{margin:0;font-size:13px;color:var(--mute)}
+.palette{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+.palette span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:4px;vertical-align:0}
+.show-top .prog{margin:4px 0 0;font-family:var(--f-display);font-size:13px;font-weight:700;color:var(--lamp);letter-spacing:.08em;min-height:1.4em}
+.show-caption{position:absolute;left:16px;right:16px;bottom:calc(86px + env(safe-area-inset-bottom,0px));text-align:center;font-family:var(--f-display);font-size:17px;font-weight:700;margin:0;opacity:0;transition:opacity .8s;text-shadow:0 2px 12px var(--night);pointer-events:none;white-space:pre-line}
+.show-caption.on{opacity:1}
+.show-actions{position:absolute;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;gap:10px}
+.show-actions button{font:inherit;font-size:13px;color:var(--ink);background:rgba(238,241,248,.08);border:1px solid var(--line);border-radius:999px;padding:7px 18px;cursor:pointer}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--sky);font-size:14px;padding:8px 18px;border-radius:999px;max-width:calc(100% - 32px);text-align:center;z-index:5}
+button:focus-visible,select:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#map .ripple{display:none}.msg.in{animation:none}.big,.bar i{transition:none}}
+
+.foot{display:flex;justify-content:center;gap:16px;font-size:12px;color:var(--mute);padding-block:8px 0}
+.foot a{color:var(--mute)}
+.captcha{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header>
+    <div class="topbar">
+      <span class="chip" id="dayChip"></span>
+      <div class="modes" role="group" aria-label="表示">
+        <button type="button" id="modeReal" aria-pressed="true">みんなの記録</button>
+        <button type="button" id="modeDemo" aria-pressed="false">見本</button>
+      </div>
+    </div>
+    <h1 class="headline"><span id="pre">いま、全国で</span><span class="num" id="total">0</span>人が<span id="verb">「おつかれさま」</span></h1>
+    <p class="sub" id="sub"></p>
+    <p class="demo-banner" id="demoBanner" hidden>見本を再生中です。人数も流れてくる挨拶も実際のものではありません。</p>
+  </header>
+
+  <section class="map-wrap" aria-label="市ごとの地図">
+    <svg id="map" viewBox="0 0 700 860" role="img" aria-label="この挨拶をした人がいる市が光る日本地図"></svg>
+    <div class="map-empty" id="mapEmpty" hidden>
+      <span id="mapEmptyText"></span>
+      <button type="button" class="link-btn" id="emptyDemo">見本を再生する</button>
+    </div>
+  </section>
+
+  <section class="stream" id="stream" aria-label="いま届いた挨拶" aria-live="off"></section>
+
+  <section class="challenge" aria-label="全国チャレンジ">
+    <div class="label"><span id="chText">今日、挨拶が灯った都道府県</span><b id="chNum">0 / 47</b></div>
+    <div class="bar"><i id="chBar"></i></div>
+  </section>
+
+  <section class="today" id="today" aria-label="今日のできごと" hidden>
+    <ul class="done" id="todayDone"></ul>
+    <ul class="soon" id="todaySoon"></ul>
+  </section>
+
+  <section class="tonight" aria-label="今夜の花火">
+    <h2>今夜の花火</h2>
+    <p class="note" id="fwNote">毎晩21時に、今日の挨拶の色で全国同時に打ち上げます。</p>
+    <button type="button" class="fw-btn" id="openShow">今夜の花火を見る</button>
+    <button type="button" class="link-btn" id="openShowAll" hidden>全国がそろった日の花火を見る（見本）</button>
+  </section>
+
+  <section style="display:grid;gap:10px" aria-label="挨拶する">
+    <div class="greets" id="greets" role="group" aria-label="挨拶を選ぶ"></div>
+    <div class="pick" id="colors" role="group" aria-label="火花の色"><span class="lbl">火花の色</span></div>
+    <div class="pick types" id="types" role="group" aria-label="好きな花火"><span class="lbl">好きな花火</span></div>
+    <button type="button" class="big" id="press">おつかれさま</button>
+    <p class="result" id="result" role="status"></p>
+    <div class="where"><label for="pref">いまいる場所</label><select id="pref" aria-label="都道府県"></select><select id="city" aria-label="市区"></select></div>
+    <p class="note">地図では、その日3人以上いる市区だけが市区として光ります。それより少ない市区は県の灯りにまとめます。流れる挨拶には県名だけが出ます。</p>
+    <p class="note" id="note" hidden></p>
+  </section>
+
+  <section class="record" aria-label="自分の記録">
+    <h2>あなたの灯り<span id="lifetime">通算 0回</span></h2>
+    <div class="cal" id="cal" aria-label="この4週間に挨拶した日"></div>
+    <p class="note">この4週間。挨拶した日が灯ります。休んだ日があっても、たまった分は減りません。記録はこの端末の中にだけ残ります。</p>
+  </section>
+  <footer class="foot"><a href="about.html">ご利用について・プライバシー</a></footer>
+</main>
+<div class="show" id="show" role="dialog" aria-modal="true" aria-label="今夜の花火" hidden>
+  <canvas id="skyCanvas"></canvas>
+  <canvas id="smokeCanvas"></canvas>
+  <canvas id="bloomCanvas"></canvas>
+  <canvas id="fwCanvas"></canvas>
+  <div class="show-top"><h2 id="showTitle">今夜の花火</h2><p id="showSub"></p><div class="palette" id="palette"></div><p class="prog" id="showProg"></p></div>
+  <p class="show-caption" id="showCaption" role="status"></p>
+  <div class="show-actions"><button type="button" id="soundBtn" aria-label="花火の音">音：オン</button><button type="button" id="replay">もう一度</button><button type="button" id="closeShow">閉じる</button></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="config.js?v=1"></script>
+<script src="app.js?v=4"></script>
+</body>
+</html>
