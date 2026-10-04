@@ -153,7 +153,7 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--lamp);outline-
   <header>
     <div class="topbar">
       <span class="chip" id="dayChip"></span>
-      <div class="modes" role="group" aria-label="表示">
+      <div class="modes" role="group" aria-label="表示" hidden>
         <button type="button" id="modeReal" aria-pressed="true">みんなの記録</button>
         <button type="button" id="modeDemo" aria-pressed="false">見本</button>
       </div>
@@ -167,7 +167,7 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--lamp);outline-
     <svg id="map" viewBox="0 0 700 860" role="img" aria-label="この挨拶をした人がいる市が光る日本地図"></svg>
     <div class="map-empty" id="mapEmpty" hidden>
       <span id="mapEmptyText"></span>
-      <button type="button" class="link-btn" id="emptyDemo">見本を再生する</button>
+      <button type="button" class="link-btn" id="emptyDemo" hidden>見本を再生する</button>
     </div>
   </section>
 
@@ -220,6 +220,6 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--lamp);outline-
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="config.js?v=1"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
